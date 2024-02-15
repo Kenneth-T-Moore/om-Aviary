@@ -11,6 +11,11 @@ class MissionEOM(om.Group):
     def initialize(self):
         self.options.declare('num_nodes', types=int,
                              desc='Number of nodes to be evaluated in the RHS')
+        self.options.declare(
+            'solve_for_throttle', default=True,
+            desc='if True, throttle will be computed using a nonlinear solver to meet the requested thrust based on Mach and altitude profile for the mission'
+                 'if False, throttle needs to be a control in the phase'
+        )
 
     def setup(self):
         nn = self.options['num_nodes']

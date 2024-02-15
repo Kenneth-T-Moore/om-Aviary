@@ -44,6 +44,11 @@ class MissionODE(om.Group):
             values=['path_constraint', 'boundary_constraint', 'bounded', None],
             desc='flag to enforce throttle constraints on the path or at the segment boundaries or using solver bounds'
         )
+        self.options.declare(
+            'solve_for_throttle', default=True,
+            desc='if True, throttle will be computed using a nonlinear solver to meet the requested thrust based on Mach and altitude profile for the mission'
+                 'if False, throttle needs to be a control in the phase'
+        )
 
     def setup(self):
         options = self.options
@@ -52,6 +57,7 @@ class MissionODE(om.Group):
         core_subsystems = options['core_subsystems']
         subsystem_options = options['subsystem_options']
         engine_count = len(aviary_options.get_val('engine_models'))
+        solve_for_throttle = options['solve_for_throttle']
 
         self.add_subsystem(
             'input_port',
@@ -146,28 +152,40 @@ class MissionODE(om.Group):
                 Dynamic.Mission.THRUST_MAX_TOTAL,
                 Dynamic.Mission.DRAG, Dynamic.Mission.ALTITUDE_RATE,
                 Dynamic.Mission.VELOCITY_RATE],
-            promotes_outputs=[
-                Dynamic.Mission.SPECIFIC_ENERGY_RATE_EXCESS,
-                Dynamic.Mission.ALTITUDE_RATE_MAX,
-                Dynamic.Mission.DISTANCE_RATE,
-                'thrust_required',
-            ])
+            promotes_outputs=[Dynamic.Mission.SPECIFIC_ENERGY_RATE_EXCESS,
+                              Dynamic.Mission.ALTITUDE_RATE_MAX,
+                              Dynamic.Mission.DISTANCE_RATE,
+                              'thrust_required'])
 
-        # add a balance comp to compute throttle based on the altitude rate
-        self.add_subsystem(name='throttle_balance',
-                           subsys=om.BalanceComp(name=Dynamic.Mission.THROTTLE,
-                                                 units="unitless",
-                                                 val=np.ones(nn),
-                                                 lhs_name='thrust_required',
-                                                 rhs_name=Dynamic.Mission.THRUST_TOTAL,
-                                                 eq_units="lbf",
-                                                 normalize=False,
-                                                 lower=0.0 if options['throttle_enforcement'] == 'bounded' else None,
-                                                 upper=1.0 if options['throttle_enforcement'] == 'bounded' else None,
-                                                 res_ref=1.0e6,
-                                                 ),
-                           promotes_inputs=['*'],
-                           promotes_outputs=['*'])
+        # add a balance comp to compute throttle based on the altitude rate - only if solve_for_throttle is True
+        if solve_for_throttle:
+            self.add_subsystem(name='throttle_balance',
+                               subsys=om.BalanceComp(name=Dynamic.Mission.THROTTLE,
+                                                     units="unitless",
+                                                     val=np.ones(nn),
+                                                     lhs_name='thrust_required',
+                                                     rhs_name=Dynamic.Mission.THRUST_TOTAL,
+                                                     eq_units="lbf",
+                                                     normalize=False,
+                                                     lower=0.0 if options['throttle_enforcement'] == 'bounded' else None,
+                                                     upper=1.0 if options['throttle_enforcement'] == 'bounded' else None,
+                                                     res_ref=1.0e6,
+                                                     ),
+                               promotes_inputs=['*'],
+                               promotes_outputs=['*'])
+        else:
+            self.add_subsystem(name='thrust_residual',
+                               subsys=om.ExecComp(f'thrust_resid=thrust_required-{Dynamic.Mission.THRUST_TOTAL}',
+                                                  shape=nn, units='lbf'),
+                               promotes=['*']
+                               )
+
+            self.add_subsystem(name='KS_comp',
+                               subsys=om.KSComp(
+                                   width=nn,
+                                   add_constraint=True
+                               ))
+            self.connect('thrust_resid', 'KS_comp.g')
 
         self.set_input_defaults(Dynamic.Mission.MASS, val=np.ones(nn), units='kg')
         self.set_input_defaults(Dynamic.Mission.VELOCITY, val=np.ones(nn), units='m/s')

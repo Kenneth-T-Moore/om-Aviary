@@ -91,7 +91,7 @@ class EnergyPhase(PhaseBuilderBase):
     validate_options
     assign_default_options
     '''
-    __slots__ = ('external_subsystems', 'meta_data')
+    # __slots__ = ('external_subsystems', 'meta_data', 'solve_for_throttle')
 
     # region : derived type customization points
     _meta_data_ = {}
@@ -242,6 +242,13 @@ class EnergyPhase(PhaseBuilderBase):
                 ref=altitude_bounds[0][1],
             )
 
+        if not self.solve_for_throttle:
+            phase.add_control(
+                Dynamic.Mission.THROTTLE,
+                targets=Dynamic.Mission.THROTTLE, units='unitless',
+                opt=True, lower=0, upper=1,
+            )
+
         ##################
         # Add Timeseries #
         ##################
@@ -321,7 +328,7 @@ class EnergyPhase(PhaseBuilderBase):
                 lower=required_available_climb_rate, units=units
             )
 
-        if not Dynamic.Mission.THROTTLE in constraints:
+        if not Dynamic.Mission.THROTTLE in constraints and self.solve_for_throttle:
             if throttle_enforcement == 'boundary_constraint':
                 phase.add_boundary_constraint(
                     Dynamic.Mission.THROTTLE, loc='initial', lower=0.0, upper=1.0, units='unitless',
@@ -365,6 +372,7 @@ class EnergyPhase(PhaseBuilderBase):
             'meta_data': self.meta_data,
             'subsystem_options': self.subsystem_options,
             'throttle_enforcement': self.user_options.get_val('throttle_enforcement'),
+            'solve_for_throttle': self.solve_for_throttle
         }
 
 

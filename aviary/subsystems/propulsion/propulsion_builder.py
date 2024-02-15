@@ -32,9 +32,15 @@ class PropulsionBuilderBase(SubsystemBuilderBase):
 
 class CorePropulsionBuilder(PropulsionBuilderBase):
     # code_origin is not necessary for this subsystem, catch with kwargs and ignore
-    def __init__(self, name=None, meta_data=None, **kwargs):
+    def __init__(self, name=None, meta_data=None, aviary_options=None, **kwargs):
         if name is None:
             name = 'core_propulsion'
+
+        # sets flag for phase builders to determine if throttle is solved via a balancecomp,
+        # or used as a control by the optimizer
+        self.solve_for_throttle = True
+        if len(aviary_options.get_val(Aircraft.Engine.NUM_ENGINES)) > 1:
+            self.solve_for_throttle = False
 
         super().__init__(name=name, meta_data=meta_data)
 
@@ -43,6 +49,14 @@ class CorePropulsionBuilder(PropulsionBuilderBase):
 
     def build_mission(self, num_nodes, aviary_inputs, **kwargs):
         return PropulsionMission(num_nodes=num_nodes, aviary_options=aviary_inputs)
+
+    # TODO post unification of core and external subsystems, throttle can be directly
+    #      requested as a control to the phase here!
+    # def get_controls(self, **kwargs):
+    #     if not self.solve_for_throttle:
+    #         return {dict}
+    #     else:
+    #         return {}
 
     def report(self, prob, reports_folder, **kwargs):
         """

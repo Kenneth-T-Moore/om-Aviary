@@ -2053,7 +2053,7 @@ class AviaryProblem(om.Problem):
             flight_duration = self.initial_guesses['flight_duration']
 
         if self.mission_method is HEIGHT_ENERGY:
-            control_keys = ["mach", "altitude"]
+            control_keys = ["mach", "altitude", "throttle"]
             state_keys = ["mass", Dynamic.Mission.DISTANCE]
         else:
             control_keys = ["velocity_rate", "throttle"]

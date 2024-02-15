@@ -81,6 +81,7 @@ class PhaseBuilderBase(ABC):
         'name',  'core_subsystems', 'subsystem_options', 'user_options',
         'initial_guesses', 'ode_class', 'transcription',
         'is_analytic_phase', 'num_nodes', 'external_subsystems', 'meta_data',
+        'solve_for_throttle'
     )
 
     # region : derived type customization points
@@ -107,7 +108,15 @@ class PhaseBuilderBase(ABC):
         if core_subsystems is None:
             core_subsystems = []
 
+        from aviary.subsystems.propulsion.propulsion_builder import CorePropulsionBuilder
         self.core_subsystems = core_subsystems
+        prop_subsystem = [subsys for subsys in core_subsystems if type(
+            subsys) is CorePropulsionBuilder][0]
+        if prop_subsystem:
+            self.solve_for_throttle = prop_subsystem.solve_for_throttle
+        else:
+            # if the propulsion subsystem cannot be found, default to solved throttle
+            self.solve_for_throttle = True
 
         if subsystem_options is None:
             subsystem_options = {}
