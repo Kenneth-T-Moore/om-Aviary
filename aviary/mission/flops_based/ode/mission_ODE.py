@@ -216,11 +216,12 @@ class MissionODE(om.Group):
                            ],
                            promotes_outputs=['initial_mass_residual'])
 
-        self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
-                                                atol=1.0e-10,
-                                                rtol=1.0e-10,
-                                                )
-        self.nonlinear_solver.linesearch = om.BoundsEnforceLS()
-        self.linear_solver = om.DirectSolver(assemble_jac=True)
-        self.nonlinear_solver.options['err_on_non_converge'] = True
-        self.nonlinear_solver.options['iprint'] = 2
+        if solve_for_throttle:
+            self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
+                                                    atol=1.0e-10,
+                                                    rtol=1.0e-10,
+                                                    )
+            self.nonlinear_solver.linesearch = om.BoundsEnforceLS()
+            self.linear_solver = om.DirectSolver(assemble_jac=True)
+            self.nonlinear_solver.options['err_on_non_converge'] = True
+            self.nonlinear_solver.options['iprint'] = 2
