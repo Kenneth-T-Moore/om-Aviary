@@ -98,25 +98,29 @@ class PhaseBuilderBase(ABC):
 
     def __init__(
         self, name=None, core_subsystems=None, user_options=None, initial_guesses=None,
-        ode_class=None, transcription=None, subsystem_options=None, is_analytic_phase=False, num_nodes=5, external_subsystems=None, meta_data=None,
+        ode_class=None, transcription=None, subsystem_options=None, is_analytic_phase=False,
+        num_nodes=5, external_subsystems=None, meta_data=None, solve_for_throttle=True
     ):
         if name is None:
             name = self.default_name
 
         self.name = name
 
+        self.solve_for_throttle = solve_for_throttle
+
         if core_subsystems is None:
             core_subsystems = []
 
-        from aviary.subsystems.propulsion.propulsion_builder import CorePropulsionBuilder
         self.core_subsystems = core_subsystems
-        prop_subsystem = [subsys for subsys in core_subsystems if type(
-            subsys) is CorePropulsionBuilder][0]
-        if prop_subsystem:
-            self.solve_for_throttle = prop_subsystem.solve_for_throttle
-        else:
-            # if the propulsion subsystem cannot be found, default to solved throttle
-            self.solve_for_throttle = True
+
+        # from aviary.subsystems.propulsion.propulsion_builder import CorePropulsionBuilder
+        # prop_subsystem = [subsys for subsys in core_subsystems if type(
+        #     subsys) is CorePropulsionBuilder][0]
+        # if prop_subsystem:
+        #     self.solve_for_throttle = prop_subsystem.solve_for_throttle
+        # else:
+        #     # if the propulsion subsystem cannot be found, default to solved throttle
+        #     self.solve_for_throttle = True
 
         if subsystem_options is None:
             subsystem_options = {}
@@ -347,7 +351,7 @@ class PhaseBuilderBase(ABC):
         return (self.name, phase_info)
 
     @classmethod
-    def from_phase_info(cls, name, phase_info: dict, core_subsystems=None, meta_data=None, transcription=None):
+    def from_phase_info(cls, name, phase_info: dict, core_subsystems=None, meta_data=None, transcription=None, solve_for_throttle=True):
         '''
         Return a new phase builder based on the specified phase info.
 
@@ -384,7 +388,8 @@ class PhaseBuilderBase(ABC):
         phase_builder = cls(
             name, subsystem_options=subsystem_options, user_options=user_options,
             initial_guesses=initial_guesses, meta_data=meta_data,
-            core_subsystems=core_subsystems, external_subsystems=external_subsystems, transcription=transcription)
+            core_subsystems=core_subsystems, external_subsystems=external_subsystems,
+            transcription=transcription, solve_for_throttle=True)
 
         return phase_builder
 

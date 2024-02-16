@@ -32,15 +32,9 @@ class PropulsionBuilderBase(SubsystemBuilderBase):
 
 class CorePropulsionBuilder(PropulsionBuilderBase):
     # code_origin is not necessary for this subsystem, catch with kwargs and ignore
-    def __init__(self, name=None, meta_data=None, aviary_options=None, **kwargs):
+    def __init__(self, name=None, meta_data=None, **kwargs):
         if name is None:
             name = 'core_propulsion'
-
-        # sets flag for phase builders to determine if throttle is solved via a balancecomp,
-        # or used as a control by the optimizer
-        self.solve_for_throttle = True
-        if len(aviary_options.get_val(Aircraft.Engine.NUM_ENGINES)) > 1:
-            self.solve_for_throttle = False
 
         super().__init__(name=name, meta_data=meta_data)
 

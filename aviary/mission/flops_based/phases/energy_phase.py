@@ -108,10 +108,10 @@ class EnergyPhase(PhaseBuilderBase):
     def __init__(
         self, name=None, subsystem_options=None, user_options=None, initial_guesses=None,
         ode_class=None, transcription=None, core_subsystems=None,
-        external_subsystems=None, meta_data=None
+        external_subsystems=None, meta_data=None, solve_for_throttle=True
     ):
         super().__init__(
-            name=name, core_subsystems=core_subsystems, subsystem_options=subsystem_options, user_options=user_options, initial_guesses=initial_guesses, ode_class=ode_class, transcription=transcription)
+            name=name, core_subsystems=core_subsystems, subsystem_options=subsystem_options, user_options=user_options, initial_guesses=initial_guesses, ode_class=ode_class, transcription=transcription, solve_for_throttle=solve_for_throttle)
 
         # TODO: support external_subsystems and meta_data in the base class
         if external_subsystems is None:
