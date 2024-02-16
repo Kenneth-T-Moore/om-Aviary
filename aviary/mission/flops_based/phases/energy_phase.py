@@ -243,11 +243,19 @@ class EnergyPhase(PhaseBuilderBase):
             )
 
         if not self.solve_for_throttle:
-            phase.add_control(
-                Dynamic.Mission.THROTTLE,
-                targets=Dynamic.Mission.THROTTLE, units='unitless',
-                opt=True, lower=0, upper=1,
-            )
+            if use_polynomial_control:
+                phase.add_polynomial_control(
+                    Dynamic.Mission.THROTTLE,
+                    targets=Dynamic.Mission.THROTTLE, units='unitless',
+                    opt=True, lower=0, upper=1,
+                    order=polynomial_control_order
+                )
+            else:
+                phase.add_control(
+                    Dynamic.Mission.THROTTLE,
+                    targets=Dynamic.Mission.THROTTLE, units='unitless',
+                    opt=True, lower=0, upper=1,
+                )
 
         ##################
         # Add Timeseries #
@@ -453,3 +461,7 @@ EnergyPhase._add_initial_guess_meta_data(
 EnergyPhase._add_initial_guess_meta_data(
     InitialGuessState('mass'),
     desc='initial guess for mass')
+
+EnergyPhase._add_initial_guess_meta_data(
+    InitialGuessControl('throttle'),
+    desc='initial guess for throttle')

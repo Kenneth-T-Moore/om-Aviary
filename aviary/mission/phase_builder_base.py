@@ -389,7 +389,7 @@ class PhaseBuilderBase(ABC):
             name, subsystem_options=subsystem_options, user_options=user_options,
             initial_guesses=initial_guesses, meta_data=meta_data,
             core_subsystems=core_subsystems, external_subsystems=external_subsystems,
-            transcription=transcription, solve_for_throttle=True)
+            transcription=transcription, solve_for_throttle=solve_for_throttle)
 
         return phase_builder
 
