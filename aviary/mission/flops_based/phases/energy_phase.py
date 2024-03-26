@@ -336,7 +336,7 @@ class EnergyPhase(PhaseBuilderBase):
                 lower=required_available_climb_rate, units=units
             )
 
-        if not Dynamic.Mission.THROTTLE in constraints and self.solve_for_throttle:
+        if not Dynamic.Mission.THROTTLE in constraints: # and self.solve_for_throttle:
             if throttle_enforcement == 'boundary_constraint':
                 phase.add_boundary_constraint(
                     Dynamic.Mission.THROTTLE, loc='initial', lower=0.0, upper=1.0, units='unitless',

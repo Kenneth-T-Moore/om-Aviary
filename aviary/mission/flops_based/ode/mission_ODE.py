@@ -179,10 +179,12 @@ class MissionODE(om.Group):
                                                   shape=nn, units='lbf'),
                                promotes=['*']
                                )
+            #self.add_constraint('thrust_resid', equals=0.0, ref=1e3)
 
             self.add_subsystem(name='KS_comp',
                                subsys=om.KSComp(
                                    width=nn,
+                                   ref=1.0e3,
                                    add_constraint=True
                                ))
             self.connect('thrust_resid', 'KS_comp.g')

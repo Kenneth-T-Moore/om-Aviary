@@ -999,6 +999,7 @@ class AviaryProblem(om.Problem):
             solve_for_throttle = False
         else:
             solve_for_throttle = True
+        solve_for_throttle = False
 
         if self.analysis_scheme is AnalysisScheme.COLLOCATION:
             traj = self.model.add_subsystem('traj', dm.Trajectory())
