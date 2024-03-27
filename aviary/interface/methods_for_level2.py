@@ -766,7 +766,7 @@ class AviaryProblem(om.Problem):
             promotes_inputs=["t_init_gear", "t_init_flaps"],
         )
 
-    def _get_phase(self, phase_name, phase_idx):
+    def _get_phase(self, phase_name, phase_idx, solve_for_throttle):
         base_phase_options = self.phase_info[phase_name]
 
         # We need to exclude some things from the phase_options that we pass down
@@ -817,7 +817,9 @@ class AviaryProblem(om.Problem):
                 phase_builder = TwoDOFPhase
 
         phase_object = phase_builder.from_phase_info(
-            phase_name, phase_options, default_mission_subsystems, meta_data=self.meta_data)
+            phase_name, phase_options, default_mission_subsystems, meta_data=self.meta_data,
+            solve_for_throttle=solve_for_throttle
+        )
 
         phase = phase_object.build_phase(aviary_options=self.aviary_inputs)
 
@@ -967,6 +969,14 @@ class AviaryProblem(om.Problem):
 
         phases = list(phase_info.keys())
 
+        # sets flag for phase builders to determine if throttle is solved via a balancecomp,
+        # or used as a control by the optimizer
+        if len(self.aviary_inputs.get_val(Aircraft.Engine.NUM_ENGINES)) > 1:
+            solve_for_throttle = False
+        else:
+            solve_for_throttle = True
+        solve_for_throttle = True
+
         if self.analysis_scheme is AnalysisScheme.COLLOCATION:
             traj = self.model.add_subsystem('traj', dm.Trajectory())
 
@@ -1053,7 +1063,8 @@ class AviaryProblem(om.Problem):
                 self.phase_objects = []
                 for phase_idx, phase_name in enumerate(phases):
                     phase = traj.add_phase(
-                        phase_name, self._get_phase(phase_name, phase_idx))
+                        phase_name, self._get_phase(phase_name, phase_idx, solve_for_throttle)
+                    )
                     add_subsystem_timeseries_outputs(phase, phase_name)
 
                     if phase_name == 'ascent' and self.mission_method is TWO_DEGREES_OF_FREEDOM:
@@ -2055,7 +2066,7 @@ class AviaryProblem(om.Problem):
             flight_duration = self.initial_guesses['flight_duration']
 
         if self.mission_method in (HEIGHT_ENERGY, SOLVED_2DOF):
-            control_keys = ["mach", "altitude"]
+            control_keys = ["mach", "altitude", "throttle"]
             state_keys = ["mass", Dynamic.Mission.DISTANCE]
         else:
             control_keys = ["velocity_rate", "throttle"]

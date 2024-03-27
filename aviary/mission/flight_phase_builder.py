@@ -35,10 +35,12 @@ class FlightPhaseBase(PhaseBuilderBase):
     def __init__(
         self, name=None, subsystem_options=None, user_options=None, initial_guesses=None,
         ode_class=None, transcription=None, core_subsystems=None,
-        external_subsystems=None, meta_data=None
+        external_subsystems=None, meta_data=None, solve_for_throttle=True
     ):
         super().__init__(
-            name=name, core_subsystems=core_subsystems, subsystem_options=subsystem_options, user_options=user_options, initial_guesses=initial_guesses, ode_class=ode_class, transcription=transcription)
+            name=name, core_subsystems=core_subsystems, subsystem_options=subsystem_options,
+            user_options=user_options, initial_guesses=initial_guesses, ode_class=ode_class,
+            transcription=transcription, solve_for_throttle=solve_for_throttle)
 
         # TODO: support external_subsystems and meta_data in the base class
         if external_subsystems is None:
@@ -194,6 +196,23 @@ class FlightPhaseBase(PhaseBuilderBase):
                     ref=altitude_bounds[0][1],
                 )
 
+
+        # Let optimizer determine the throttle(s).
+        if not self.solve_for_throttle:
+            if use_polynomial_control:
+                phase.add_polynomial_control(
+                    Dynamic.Mission.THROTTLE,
+                    targets=Dynamic.Mission.THROTTLE, units='unitless',
+                    opt=True, lower=0, upper=1,
+                    order=polynomial_control_order
+                )
+            else:
+                phase.add_control(
+                    Dynamic.Mission.THROTTLE,
+                    targets=Dynamic.Mission.THROTTLE, units='unitless',
+                    opt=True, lower=0, upper=1,
+                )
+
         ##################
         # Add Timeseries #
         ##################
@@ -328,6 +347,7 @@ class FlightPhaseBase(PhaseBuilderBase):
             'meta_data': self.meta_data,
             'subsystem_options': self.subsystem_options,
             'throttle_enforcement': self.user_options.get_val('throttle_enforcement'),
+            'solve_for_throttle': self.solve_for_throttle
         }
 
 
@@ -411,3 +431,7 @@ FlightPhaseBase._add_initial_guess_meta_data(
 FlightPhaseBase._add_initial_guess_meta_data(
     InitialGuessState('mass'),
     desc='initial guess for mass')
+
+FlightPhaseBase._add_initial_guess_meta_data(
+    InitialGuessControl('throttle'),
+    desc='initial guess for throttle')
