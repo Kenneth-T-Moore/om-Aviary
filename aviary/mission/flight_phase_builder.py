@@ -204,7 +204,8 @@ class FlightPhaseBase(PhaseBuilderBase):
                     Dynamic.Mission.THROTTLE,
                     targets=Dynamic.Mission.THROTTLE, units='unitless',
                     opt=True, lower=0, upper=1,
-                    order=polynomial_control_order
+                    #order=polynomial_control_order
+                    order=1
                 )
             else:
                 phase.add_control(
