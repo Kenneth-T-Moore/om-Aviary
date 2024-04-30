@@ -78,7 +78,7 @@ class LiftDependentDrag(om.ExplicitComponent):
         # Derivative of FCDP w.r.t A variable at value of A
         arrFCDP = np.array([FCDP1, FCDP2, FCDP3, FCDP4, FCDP5])
         arrFCDP = np.reshape(arrFCDP, (5))
-        interp_arrFCDP = InterpND(method='lagrange2', points=(arrA), values=arrFCDP)
+        interp_arrFCDP = InterpND(method='lagrange3', points=(arrA), values=arrFCDP)
         FCDP, deriv = interp_arrFCDP.interpolate(A, compute_derivative=True)  # at A
         dFCDP_dA = deriv[:, 0]  # at A
 
@@ -87,7 +87,7 @@ class LiftDependentDrag(om.ExplicitComponent):
             [dFCDP1[:, 0], dFCDP2[:, 0], dFCDP3[:, 0], dFCDP4[:, 0], dFCDP5[:, 0]])
         arrdFCDP_dDELM = np.reshape(arrdFCDP_dDELM, (5))
         interp_arrdFCDP_dDELM = InterpND(
-            method='lagrange2', points=(arrA), values=arrdFCDP_dDELM)
+            method='lagrange3', points=(arrA), values=arrdFCDP_dDELM)
         dFCDP_dDELM, deriv = interp_arrdFCDP_dDELM.interpolate(
             A, compute_derivative=True)  # at A
 
@@ -96,7 +96,7 @@ class LiftDependentDrag(om.ExplicitComponent):
             [dFCDP1[:, 1], dFCDP2[:, 1], dFCDP3[:, 1], dFCDP4[:, 1], dFCDP5[:, 1]])
         arrdFCDP_dDELCL = np.reshape(arrdFCDP_dDELCL, (5))
         interp_arrdFCDP_dDELCL = InterpND(
-            method='lagrange2', points=(arrA), values=arrdFCDP_dDELCL)
+            method='lagrange3', points=(arrA), values=arrdFCDP_dDELCL)
         dFCDP_dDELCL, deriv = interp_arrdFCDP_dDELCL.interpolate(
             A, compute_derivative=True)  # at A
 
@@ -591,29 +591,29 @@ ARS20 = np.array(
          0.084000,  0.108000,  0.131000,  0.210000,  0.290000],
      [1.100000,   0.000000,  0.003600,  0.022000,  0.048000,  0.075000,  0.102000,  0.128000,  0.155000,  0.269000,  0.375000]])
 
-AR05table = InterpND(method='lagrange2', points=(
+AR05table = InterpND(method='lagrange3', points=(
     AR05[1:, 0], AR05[0, 1:]), values=AR05[1:, 1:], extrapolate=True)
-AR1table = InterpND(method='lagrange2', points=(
+AR1table = InterpND(method='lagrange3', points=(
     AR1[1:, 0], AR1[0, 1:]), values=AR1[1:, 1:], extrapolate=True)
-AR2table = InterpND(method='lagrange2', points=(
+AR2table = InterpND(method='lagrange3', points=(
     AR2[1:, 0], AR2[0, 1:]), values=AR2[1:, 1:], extrapolate=True)
 AR4table = InterpND(method='lagrange3', points=(
     AR4[1:, 0], AR4[0, 1:]), values=AR4[1:, 1:], extrapolate=True)
 AR6table = InterpND(method='lagrange3', points=(
     AR6[1:, 0], AR6[0, 1:]), values=AR6[1:, 1:], extrapolate=True)
-ARS07table = InterpND(method='lagrange2', points=(
+ARS07table = InterpND(method='lagrange3', points=(
     ARS07[1:, 0], ARS07[0, 1:]), values=ARS07[1:, 1:], extrapolate=True)
-ARS08table = InterpND(method='lagrange2', points=(
+ARS08table = InterpND(method='lagrange3', points=(
     ARS08[1:, 0], ARS08[0, 1:]), values=ARS08[1:, 1:], extrapolate=True)
-ARS10table = InterpND(method='lagrange2', points=(
+ARS10table = InterpND(method='lagrange3', points=(
     ARS10[1:, 0], ARS10[0, 1:]), values=ARS10[1:, 1:], extrapolate=True)
-ARS12table = InterpND(method='lagrange2', points=(
+ARS12table = InterpND(method='lagrange3', points=(
     ARS12[1:, 0], ARS12[0, 1:]), values=ARS12[1:, 1:], extrapolate=True)
-ARS14table = InterpND(method='lagrange2', points=(
+ARS14table = InterpND(method='lagrange3', points=(
     ARS14[1:, 0], ARS14[0, 1:]), values=ARS14[1:, 1:], extrapolate=True)
-ARS16table = InterpND(method='lagrange2', points=(
+ARS16table = InterpND(method='lagrange3', points=(
     ARS16[1:, 0], ARS16[0, 1:]), values=ARS16[1:, 1:], extrapolate=True)
-ARS18table = InterpND(method='lagrange2', points=(
+ARS18table = InterpND(method='lagrange3', points=(
     ARS18[1:, 0], ARS18[0, 1:]), values=ARS18[1:, 1:], extrapolate=True)
-ARS20table = InterpND(method='lagrange2', points=(
+ARS20table = InterpND(method='lagrange3', points=(
     ARS20[1:, 0], ARS20[0, 1:]), values=ARS20[1:, 1:], extrapolate=True)
