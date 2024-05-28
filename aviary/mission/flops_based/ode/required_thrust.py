@@ -16,7 +16,7 @@ class RequiredThrust(om.ExplicitComponent):
     def setup(self):
         nn = self.options['num_nodes']
 
-        self.add_input(Dynamic.Mission.DRAG, val=np.zeros(nn),
+        self.add_input(Dynamic.Mission.DRAG, val=np.ones(nn),
                        units='N', desc='drag force')
         self.add_input(Dynamic.Mission.ALTITUDE_RATE, val=np.zeros(nn),
                        units='m/s', desc='rate of change of altitude')
