@@ -14,7 +14,7 @@ from aviary.variable_info.enums import AnalysisScheme
 
 class ExternalSubsystemGroup(om.Group):
     def configure(self):
-        promote_aircraft_and_mission_vars(self)
+        pass  #promote_aircraft_and_mission_vars(self)
 
 
 class MissionODE(om.Group):
@@ -144,6 +144,7 @@ class MissionODE(om.Group):
             if subsystem_mission is not None:
                 add_subsystem_group = True
                 external_subsystem_group.add_subsystem(subsystem.name, subsystem_mission,
+                                                       promotes_inputs=['*'],
                                                        promotes_outputs=['*'])
 
         # Only add the external subsystem group if it has at least one subsystem.
