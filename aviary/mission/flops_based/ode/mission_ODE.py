@@ -114,24 +114,6 @@ class MissionODE(om.Group):
             promotes_outputs=[('velocity_rate', Dynamic.Mission.VELOCITY_RATE)],
         )
 
-        base_options = {'num_nodes': nn, 'aviary_inputs': aviary_options}
-
-        for subsystem in core_subsystems:
-            # check if subsystem_options has entry for a subsystem of this name
-            if subsystem.name in subsystem_options:
-                kwargs = subsystem_options[subsystem.name]
-            else:
-                kwargs = {}
-
-            kwargs.update(base_options)
-            system = subsystem.build_mission(**kwargs)
-
-            if system is not None:
-                self.add_subsystem(subsystem.name,
-                                   system,
-                                   promotes_inputs=subsystem.mission_inputs(**kwargs),
-                                   promotes_outputs=subsystem.mission_outputs(**kwargs))
-
         # Create a lightly modified version of an OM group to add external subsystems
         # to the ODE with a special configure() method that promotes
         # all aircraft:* and mission:* variables to the ODE.
@@ -156,7 +138,28 @@ class MissionODE(om.Group):
                 promotes_inputs=['*'],
                 promotes_outputs=['*'])
 
-        self.add_subsystem(
+        base_options = {'num_nodes': nn, 'aviary_inputs': aviary_options}
+
+        sub1 = self.add_subsystem('solver_sub', om.Group(),
+                                   promotes=['*'])
+
+        for subsystem in core_subsystems:
+            # check if subsystem_options has entry for a subsystem of this name
+            if subsystem.name in subsystem_options:
+                kwargs = subsystem_options[subsystem.name]
+            else:
+                kwargs = {}
+
+            kwargs.update(base_options)
+            system = subsystem.build_mission(**kwargs)
+
+            if system is not None:
+                sub1.add_subsystem(subsystem.name,
+                                   system,
+                                   promotes_inputs=subsystem.mission_inputs(**kwargs),
+                                   promotes_outputs=subsystem.mission_outputs(**kwargs))
+
+        sub1.add_subsystem(
             name='mission_EOM',
             subsys=MissionEOM(num_nodes=nn),
             promotes_inputs=[
@@ -172,7 +175,7 @@ class MissionODE(om.Group):
             ])
 
         # add a balance comp to compute throttle based on the altitude rate
-        self.add_subsystem(name='throttle_balance',
+        sub1.add_subsystem(name='throttle_balance',
                            subsys=om.BalanceComp(name=Dynamic.Mission.THROTTLE,
                                                  units="unitless",
                                                  val=np.ones(nn),
@@ -227,11 +230,11 @@ class MissionODE(om.Group):
 
         print_level = 0 if analysis_scheme is AnalysisScheme.SHOOTING else 2
 
-        self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
+        sub1.nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
                                                 atol=1.0e-10,
                                                 rtol=1.0e-10,
                                                 )
-        self.nonlinear_solver.linesearch = om.BoundsEnforceLS()
-        self.linear_solver = om.DirectSolver(assemble_jac=True)
-        self.nonlinear_solver.options['err_on_non_converge'] = True
-        self.nonlinear_solver.options['iprint'] = print_level
+        sub1.nonlinear_solver.linesearch = om.BoundsEnforceLS()
+        sub1.linear_solver = om.DirectSolver(assemble_jac=True)
+        sub1.nonlinear_solver.options['err_on_non_converge'] = True
+        sub1.nonlinear_solver.options['iprint'] = print_level
