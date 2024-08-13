@@ -254,11 +254,13 @@ class MissionODE(om.Group):
 
         print_level = 0 if analysis_scheme is AnalysisScheme.SHOOTING else 2
 
-        self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
+        nonlinear_solver = om.NewtonSolver(solve_subsystems=True,
                                                 atol=1.0e-10,
                                                 rtol=1.0e-10,
                                                 )
-        self.nonlinear_solver.linesearch = om.BoundsEnforceLS()
-        self.linear_solver = om.DirectSolver(assemble_jac=True)
-        self.nonlinear_solver.options['err_on_non_converge'] = True
-        self.nonlinear_solver.options['iprint'] = print_level
+        nonlinear_solver.linesearch = om.BoundsEnforceLS()
+        linear_solver = om.DirectSolver(assemble_jac=True)
+        nonlinear_solver.options['err_on_non_converge'] = True
+        nonlinear_solver.options['iprint'] = print_level
+
+        self.add_subsolvers(nonlinear_solver, linear_solver, 'throttle_balance')
