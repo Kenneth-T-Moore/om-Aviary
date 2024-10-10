@@ -137,14 +137,13 @@ class AviaryGroup(om.Group):
         all_prom_inputs = []
 
         # We can call list_inputs on the groups.
-        for system in self.system_iter(recurse=False, typ=om.Group):
+        for system in self.system_iter(recurse=False):
             var_abs = system.list_inputs(out_stream=None, val=False)
             var_prom = [v['prom_name'] for k, v in var_abs]
             all_prom_inputs.extend(var_prom)
 
-        # Component promotes aren't handled until this group resolves.
-        # Here, we address anything promoted with an alias in AviaryProblem.
-        for system in self.system_iter(recurse=False, typ=Component):
+            # Calls to promotes aren't handled until this group resolves.
+            # Here, we address anything promoted with an alias in AviaryProblem.
             input_meta = system._var_promotes['input']
             var_prom = [v[0][1] for v in input_meta if isinstance(v[0], tuple)]
             all_prom_inputs.extend(var_prom)
