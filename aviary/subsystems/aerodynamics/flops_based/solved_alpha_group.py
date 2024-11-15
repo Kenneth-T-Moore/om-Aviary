@@ -101,12 +101,14 @@ class SolvedAlphaGroup(om.Group):
                 mass={'units': 'kg', 'shape': nn},
                 computed_lift={'units': 'N', 'shape': nn},
                 lift_resid={'shape': nn},
+                has_diag_partials=True,
             ),
             promotes_inputs=[
-                ('mass', Dynamic.Vehicle.MASS),
-                ('computed_lift', Dynamic.Vehicle.LIFT),
+                ('mass', Dynamic.Mission.MASS),
+                ('computed_lift', Dynamic.Mission.LIFT),
             ],
         )
+
 
         self.linear_solver = om.DirectSolver()
         newton = self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True)
