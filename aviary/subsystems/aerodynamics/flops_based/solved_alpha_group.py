@@ -104,8 +104,8 @@ class SolvedAlphaGroup(om.Group):
                 has_diag_partials=True,
             ),
             promotes_inputs=[
-                ('mass', Dynamic.Mission.MASS),
-                ('computed_lift', Dynamic.Mission.LIFT),
+                ('mass', Dynamic.Vehicle.MASS),
+                ('computed_lift', Dynamic.Vehicle.LIFT),
             ],
         )
 
