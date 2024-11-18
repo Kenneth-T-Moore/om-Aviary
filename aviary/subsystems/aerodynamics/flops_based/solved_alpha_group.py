@@ -109,7 +109,6 @@ class SolvedAlphaGroup(om.Group):
             ],
         )
 
-
         self.linear_solver = om.DirectSolver()
         newton = self.nonlinear_solver = om.NewtonSolver(solve_subsystems=True)
         newton.options['iprint'] = 2
