@@ -98,6 +98,7 @@ class TestLowSpeedAero(unittest.TestCase):
             flaps_aero_data=self.flaps_data,
             ground_aero_data=self.ground_data,
             extrapolate=True)
+        prob.model.set_input_defaults(Aircraft.Wing.AREA, val=1370.3)
         prob.setup()
 
         prob.set_val("t_curr", [0.0, 1.0, 2.0, 3.0])
@@ -134,6 +135,7 @@ class TestLowSpeedAero(unittest.TestCase):
             flaps_aero_data=self.flaps_data,
             ground_aero_data=self.ground_data,
             extrapolate=True)
+        prob.model.set_input_defaults(Aircraft.Wing.AREA, val=1370.3)
         prob.setup()
 
         prob.set_val(
@@ -192,6 +194,7 @@ class GearDragIncrementTest(unittest.TestCase):
             promotes_inputs=['*'],
             promotes_outputs=['*'],
         )
+        # prob.model.set_input_defaults(Aircraft.Wing.AREA, val=1370.3)
         prob.setup(check=False, force_alloc_complex=True)
         prob.set_val(Mission.Design.GROSS_MASS, 175000, 'lbm')
         prob.set_val(Aircraft.Wing.AREA, 1000, 'ft**2')
@@ -224,6 +227,7 @@ class GearDragIncrementTest2(unittest.TestCase):
             promotes_inputs=['*'],
             promotes_outputs=['*'],
         )
+        prob.model.set_input_defaults(Aircraft.Wing.AREA, val=1370.3)
         prob.setup(check=False, force_alloc_complex=True)
 
         partial_data = prob.check_partials(out_stream=None, method="cs")
